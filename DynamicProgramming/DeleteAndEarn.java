@@ -1,29 +1,22 @@
 class Solution {
     public int deleteAndEarn(int[] nums) {
-        return dfs(nums, new boolean[nums.length]);
+        Map<Integer, Integer> allPoints = new HashMap<>();
+        Map<Integer, Integer> dp = new HashMap<>();
+        int max = Integer.MIN_VALUE;
+        for(int i=0;i<nums.length;i++){
+            int val = allPoints.getOrDefault(nums[i], 0);
+            allPoints.put(nums[i], val+nums[i]);
+            max = Math.max(nums[i], max);
+        }
+
+        return maxPoints(max, allPoints, dp);
     }
 
-    private int dfs(int[] nums, boolean[] visited) {
-        if(nums.length==0)
-            return 0;
-
-        int maxSum = 0;
-        for (int i = 0; i < nums.length; i++) {
-            int currentSum = 0;
-            visited[i] = true;
-            int current = nums[i];
-            List<Integer> remaining = new ArrayList<>();
-            for (int j = 0; j < nums.length; j++) {
-                if(visited[j]) continue;
-                if (nums[j] != current - 1 && nums[j] != current + 1) {
-                    remaining.add(nums[j]);
-                }
-            }
-            currentSum += dfs(remaining.stream()
-                    .mapToInt(Integer::intValue)
-                    .toArray(), new boolean[remaining.size()]);
-            maxSum = Math.max(maxSum, currentSum + current);
-        }
-        return maxSum;
+    private int maxPoints(int max, Map<Integer, Integer> allPoints, Map<Integer, Integer> dp){
+        if(max<=0) return 0;
+        if(dp.containsKey(max)) return dp.get(max);
+        int gain = allPoints.getOrDefault(max, 0);
+        dp.put(max, Math.max(maxPoints(max-2, allPoints, dp)+gain, maxPoints(max-1, allPoints, dp)));
+        return dp.get(max);
     }
 }
